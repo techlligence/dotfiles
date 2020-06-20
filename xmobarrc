@@ -1,0 +1,27 @@
+Config { font = "xft:Hack-Regular Font:pixelsize=18:antialias=true:hinting=true"
+       , additionalFonts = []
+       , borderColor = "#520000"
+       , border = FullB
+       , bgColor = "#black"
+       , fgColor = "grey"
+       , alpha = 255
+       , position = Top
+       , textOffset = -1
+       , iconOffset = -1
+       , lowerOnStart = True
+       , pickBroadest = False
+       , persistent = False
+       , hideOnStart = False
+       , iconRoot = "."
+       , allDesktops = True
+       , overrideRedirect = True
+       , commands = [
+                      Run UnsafeStdinReader
+                    , Run Date "%a %b %_d %Y %H:%M:%S" "date" 10
+                    , Run Com "/bin/bash" ["-c", "/home/louis/.scripts/getVolume.sh"] "volume" 1
+                    ]
+       , sepChar = "%"
+       , alignSep = "}{"
+       , template = "%UnsafeStdinReader%}\
+                    \{ <fc=#ee9a00>%date%</fc> | %volume%"
+       }
