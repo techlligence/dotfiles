@@ -59,8 +59,10 @@ import XMonad.Layout.Magnifier
 import XMonad.Layout.SimplestFloat
   -- Display without borders
 import XMonad.Layout.NoBorders
-  -- Lets the xmobar be hidden when in fullscreen mode
+  -- Allows youtube videos to be expanded properly
 import XMonad.Hooks.ManageHelpers
+  -- DWM style master/slave swapping
+import XMonad.Actions.DwmPromote
 
 
 ----------------------------------------------------------------------------
@@ -86,8 +88,8 @@ currentScreen = gets (W.screen . W.current . windowset)
   -- Function to get the workspaces on the current screen
 spacesOnCurrentScreen :: WSType
 spacesOnCurrentScreen = WSIs (isOnScreen <$> currentScreen)
-  --The keybindings
 
+  --The keybindings
 myKeys = \c -> mkKeymap c $
         [ ("M-S-<Return>", spawn myTerminal)
         -- launch dmenu
@@ -112,7 +114,7 @@ myKeys = \c -> mkKeymap c $
         , ("M-m", windows W.focusMaster  )
 
         -- Swap the focused window and the master window
-        , ("M-<Return>", windows W.swapMaster)
+        , ("M-<Return>", dwmpromote)
 
         -- Swap the focused window with the next window
         , ("M-S-j", windows W.swapDown  )
@@ -221,50 +223,15 @@ magnify  = renamed [Replace "magnify"]
            $ ResizableTall 1 (3/100) (1/2) []
 
 monocle  = renamed [Replace "monocle"]
-           $ limitWindows 20 Full   
+           $ limitWindows 20 Full 
 
---floats   = renamed [Replace "floats"]
---j          $ limitWindows 20 simplestFloat
-
-myLayout =  avoidStruts $ myDefaultLayout
-          where
-            myDefaultLayout =     tall
-                              ||| magnify
-                              ||| noBorders monocle 
-                              ||| noBorders Full
-                            
---myLayout = spacingRaw False (Border 10 10 10 10) False (Border 10 10 10 10) True $ avoidStruts (tiled ||| Mirror tiled ||| Full)
---  where
---    -- default tiling algorithm partitions the screen into two panes
---     tiled   = Tall nmaster delta ratio
---
---     -- The default number of windows in the master pane
---     nmaster = 1
---
---     -- Default proportion of screen occupied by master pane
---     ratio   = 1/2
---
---     -- Percent of screen to increment by when resizing panes
---     delta   = 3/100
+myLayout = avoidStruts (tall ||| magnify ||| noBorders monocle) ||| noBorders Full
 
 ------------------------------------------------------------------------
--- Window rules:
-
--- Execute arbitrary actions and WindowSet manipulations when managing
--- a new window. You can use this to, for example, always float a
--- particular program, or have a client always appear on a particular
--- workspace.
---
--- To find the property name associated with a program, use
--- > xprop | grep WM_CLASS
--- and click on the client you're interested in.
---
--- To match on the WM_NAME, you can use 'title' in the same way that
--- 'className' and 'resource' are used below.
---
+-- Manage Hook:
+------------------------------------------------------------------------
 myManageHook = composeAll
-   [ isFullscreen --> (doF W.focusDown <+> doFullFloat)
-    , className =? "MPlayer"        --> doFloat
+   [  className =? "MPlayer"        --> doFloat
     , className =? "Gimp"           --> doFloat
     , resource  =? "desktop_window" --> doIgnore
     , resource  =? "kdesktop"       --> doIgnore ]
@@ -289,23 +256,19 @@ myManageHook = composeAll
 -- myLogHook = return ()
 
 ------------------------------------------------------------------------
--- Startup hook
-
--- Perform an arbitrary action each time xmonad starts or is restarted
--- with mod-q.  Used by, e.g., XMonad.Layout.PerWorkspace to initialize
--- per-workspace layout choices.
---
--- By default, do nothing.
+-- Startup Hook:
+------------------------------------------------------------------------
 myStartupHook = do
   spawnOnce "/home/louis/.scripts/lefthand.sh &"
   spawnOnce "nitrogen --restore &"
+  spawnOnce "picom -CGb &"
+  spawnOnce "sudo ntpdate 129.6.15.28; killall xmobar; xmonad --restart &"
   setWMName "LG3D &"
 
 ------------------------------------------------------------------------
--- Now run xmonad with all the defaults we set up.
+-- Main:
+------------------------------------------------------------------------
 
--- Run xmonad with the settings you specify. No need to modify this.
---
 myTerminal = "alacritty"
 
 main = do
@@ -332,7 +295,8 @@ main = do
         layoutHook         = myLayout,
         startupHook        = myStartupHook,
         manageHook         = myManageHook <+> manageDocks,
-        handleEventHook    = docksEventHook,
+      -- fullscreenhook is used to allow youtube videos to take fullscreen when double clicking
+        handleEventHook    = docksEventHook <+> fullscreenEventHook,
         logHook            = (mapM_ dynamicLogWithPP $ zipWith pp hs [0..nScreens]) >> updatePointer (0.5, 0.5) (0, 0)            
     }
    -- `additionalKeysP` myKeys 
@@ -348,7 +312,7 @@ pp h s = marshallPP s defaultPP {
     ppHiddenNoWindows   = color "#5c0000",
     ppHidden            = color "#58b3d1",
     ppUrgent            = color "red",
-    ppTitle = color "#a39b08",
+    ppTitle = color "#a39b08" . shorten 35,
     ppSep =  "<fc=#9542ed> | </fc>",
     ppOrder  = \(ws:l:t:ex) -> [ws,l]++ex++[t]
     }
