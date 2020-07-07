@@ -26,7 +26,8 @@ import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.DynamicLog
   -- Standard input output
 import System.IO (Handle, hPutStrLn)
-
+  -- DWMM like multi-monitor setup
+import XMonad.Layout.IndependentScreens
   -- Add spacing between windows
 import XMonad.Layout.Spacing
   -- Autospawn processes and programs
@@ -63,10 +64,6 @@ import XMonad.Hooks.ManageHelpers
   -- DWM style master/slave swapping
 import XMonad.Actions.DwmPromote
 
-import qualified XMonad.Hooks.DynamicBars as DynamicBars
-import qualified XMonad.Hooks.DynamicLog as DynamicLog
-
-
 
 ----------------------------------------------------------------------------
 -- Mouse focuses
@@ -82,6 +79,15 @@ myClickJustFocuses = False
 ----------------------------------------------------------------------------
 -- Keybindings
 ----------------------------------------------------------------------------
+  -- Function to check if on the current screen
+isOnScreen :: ScreenId -> WindowSpace -> Bool
+isOnScreen s ws = s == unmarshallS (W.tag ws)
+  -- Function to get the current screen ID
+currentScreen :: X ScreenId
+currentScreen = gets (W.screen . W.current . windowset)
+  -- Function to get the workspaces on the current screen
+spacesOnCurrentScreen :: WSType
+spacesOnCurrentScreen = WSIs (isOnScreen <$> currentScreen)
 
   --The keybindings
 myKeys = \c -> mkKeymap c $
@@ -126,8 +132,7 @@ myKeys = \c -> mkKeymap c $
         , ("M-t", withFocused $ windows . W.sink)
 
         -- Cycle through workspaces
-        , ("M-S-[", prevWS)
-        , ("M-S-]", nextWS)
+        , ("M-<Tab>", moveTo  Next spacesOnCurrentScreen)
 
         -- Move focused window to next/prev monitor
         , ("M-S-.", shiftNextScreen)
@@ -158,11 +163,21 @@ myKeys = \c -> mkKeymap c $
         
         ++
 
-        [("M-" ++ m ++ k, windows $ f i)
-        | (i, k) <- zip (XMonad.workspaces c) ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
-        , (f, m) <- [(W.greedyView, ""), (W.shift, "S-")]]
-        
+        --
+        -- mod-[1..9], Switch to workspace N
+        -- mod-shift-[1..9], Move client to workspace N
+        --
+        [("M-" ++ m ++ k, windows $ onCurrentScreen f i)
+            | (i, k) <- zip (workspaces' c) ["1", "2", "3", "4", "5"]
+            , (f, m) <- [(W.greedyView, ""), (W.shift, "S-")]]
 
+        ++
+
+        -- Move workspace to workspace N and focus 
+        [("M-" ++ m ++ k, windows $ onCurrentScreen f i)
+            | (i, k) <- zip (workspaces' c) ["1", "2", "3", "4", "5"]
+            , (f, m) <- [(liftM2 (.) W.greedyView W.shift, "M-C-")]] 
+        
 ------------------------------------------------------------------------
 -- Mouse bindings: default actions bound to mouse events
 ------------------------------------------------------------------------
@@ -244,13 +259,12 @@ myManageHook = composeAll
 -- Startup Hook:
 ------------------------------------------------------------------------
 myStartupHook = do
-  spawnOnce "$HOME/.xmonad/scripts/lefthand.sh &"
+  spawnOnce "$HOME/.scripts/lefthand.sh &"
   spawnOnce "nitrogen --restore &"
   spawnOnce "picom -CGb &"
   spawnOnce "sudo ntpdate 129.6.15.28; killall xmobar; xmonad --restart &"
   setWMName "LG3D &"
   spawnOnce "xsetroot -cursor_name left_ptr &"
-  DynamicBars.dynStatusBarStartup barCreator barDestroyer
 
 
 ------------------------------------------------------------------------
@@ -260,9 +274,10 @@ myStartupHook = do
 myTerminal = "alacritty"
 
 main = do
-       xmproc0 <- spawnPipe "xmobar -x 0 $HOME/.config/xmobar/xmobarrc"
-       xmproc1 <- spawnPipe "xmobar -x 1 $HOME/.config/xmobar/xmobarrc"
-
+  
+       -- Count screen and spawn that many xmobar on the screen
+       nScreens    <- countScreens
+       hs          <- mapM (spawnPipe . xmobarCommand) [0 .. nScreens-1] 
 
        xmonad $ ewmh def {
       -- simple stuff
@@ -271,9 +286,10 @@ main = do
         clickJustFocuses   = myClickJustFocuses,
         borderWidth        = 2,
         modMask            = mod1Mask,
-        workspaces         = ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
-        normalBorderColor  = "#000000",
-        focusedBorderColor = "#ff7700",
+        workspaces         = withScreens nScreens (map show [1..5]),
+        --workspaces         = [1, 2, 3, 4, 5],
+        normalBorderColor  = "#dddddd",
+        focusedBorderColor = "orange",
 
       -- key bindings
         keys               = myKeys,
@@ -284,42 +300,25 @@ main = do
         startupHook        = myStartupHook,
         manageHook         = myManageHook <+> manageDocks,
       -- fullscreenhook is used to allow youtube videos to take fullscreen when double clicking
-        handleEventHook    = docksEventHook <+> fullscreenEventHook <+> DynamicBars.dynStatusBarEventHook barCreator barDestroyer,
-        logHook = (DynamicBars.multiPP myLogPPActive myLogPP) >> updatePointer (0.5, 0.5) (0, 0) 
-   
+        handleEventHook    = docksEventHook <+> fullscreenEventHook,
+        logHook            = (mapM_ dynamicLogWithPP $ zipWith pp hs [0..nScreens]) >> updatePointer (0.5, 0.5) (0, 0)    
     }
    -- `additionalKeysP` myKeys 
 
-------------------------------------------------------------------------
--- Status bars
-------------------------------------------------------------------------
+  -- launch s many xmobar bars
+xmobarCommand (S s) = unwords ["xmobar", "-x", show s, "/home/louis/.config/xmobar/xmobarrc"]
 
-myLogPP :: DynamicLog.PP
-myLogPP = DynamicLog.defaultPP
-  { DynamicLog.ppCurrent = DynamicLog.xmobarColor "#000000" "#67A23B" . DynamicLog.wrap " " " " -- shows the workspace that the unfocused monitor is on
-  , DynamicLog.ppVisible = DynamicLog.xmobarColor "#4DD538" "" . DynamicLog.wrap " " " " -- shows the workspace that the focused monitor is displaying on the unfocused monitor
-  , DynamicLog.ppHidden  = DynamicLog.xmobarColor "#4DD538" "" . DynamicLog.wrap " " " " -- hidden workspaces but with windows in it
-  , DynamicLog.ppHiddenNoWindows = DynamicLog.xmobarColor "#FF0000" "" . DynamicLog.wrap " " " "
- -- , DynamicLog.ppUrgent  = ""
-  , DynamicLog.ppTitle   = DynamicLog.xmobarColor "#a8ada8" "" . DynamicLog.wrap " " " " . DynamicLog.shorten 50
-  , DynamicLog.ppLayout  = DynamicLog.xmobarColor "#000000" "#b167c7" . DynamicLog.wrap " " " "
-  , DynamicLog.ppSep     = " | "
-  }
 
-myLogPPActive :: DynamicLog.PP
-myLogPPActive = DynamicLog.defaultPP
-  { DynamicLog.ppCurrent = DynamicLog.xmobarColor "#000000" "#67A23B" . DynamicLog.wrap " " " " -- focused monitor and focused workspace
-  , DynamicLog.ppVisible = DynamicLog.xmobarColor "#4DD538" "" . DynamicLog.wrap " " " " -- shows the workspace the unfocused monitor is displaying on the focused monitor
-  , DynamicLog.ppHidden  = DynamicLog.xmobarColor "#4DD538" "" . DynamicLog.wrap " " " " -- hidden workspaces but with windows in it
-  , DynamicLog.ppHiddenNoWindows = DynamicLog.xmobarColor "#FF0000" "" . DynamicLog.wrap " " " "
- -- , DynamicLog.ppUrgent  = ""
-  , DynamicLog.ppTitle   = DynamicLog.xmobarColor "#000000" "#abcf5f" . DynamicLog.wrap " " " " . DynamicLog.shorten 50
-  , DynamicLog.ppLayout  = DynamicLog.xmobarColor "#000000" "#b167c7" . DynamicLog.wrap " " " "
-  , DynamicLog.ppSep     = " | "
-  }
-
-barCreator :: DynamicBars.DynamicStatusBar
-barCreator (S sid) = spawnPipe $ "xmobar --screen " ++ show sid ++ " $HOME/.config/xmobar/xmobarrc"
-
-barDestroyer :: DynamicBars.DynamicStatusBarCleanup
-barDestroyer = return ()
+  -- the xmobar will pretty print with the following parameters
+pp h s = marshallPP s defaultPP {
+    ppOutput            = hPutStrLn h,
+    ppCurrent           = color "#ffffff" . wrap "<fc=#48b867>[</fc>" "<fc=#48b867>]</fc>",
+    ppVisible           = color "#48b867",
+    ppHiddenNoWindows   = color "#5c0000",
+    ppHidden            = color "#58b3d1",
+    ppUrgent            = color "red",
+    ppTitle = color "#a39b08" . shorten 35,
+    ppSep =  "<fc=#9542ed> | </fc>",
+    ppOrder  = \(ws:l:t:ex) -> [ws,l]++ex++[t]
+    }
+    where color c = xmobarColor c ""
