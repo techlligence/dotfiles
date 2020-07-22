@@ -1,0 +1,142 @@
+snippet beg "begin{} / end{}" b
+\begin{$1}
+	$0
+\begin{$1}
+endsnippet
+
+snippet // "Fraction1" i
+\\frac{$1}{$2}$0
+endsnippet
+
+snippet / "Fraction2" i
+\\frac{${VISUAL}}{$1}$0
+endsnippet
+
+snippet mk "Math" w
+$${1}$`!p
+if t[2] and t[2][0] not in [',', '.', '?', '-', ' ']:
+    snip.rv = ' '
+else:
+    snip.rv = ''
+`$2
+endsnippet
+
+snippet dm "Math" w
+\[
+$1
+.\] $0
+endsnippet
+
+snippet '([A-Za-z])(\d)' "auto subscript" wr
+`!p snip.rv = match.group(1)`_`!p snip.rv = match.group(2)`
+endsnippet
+
+snippet '([A-Za-z]+\s)_([A-Za-z]+\s)' "auto subscript2" wr
+`!p snip.rv = (match.group(1))[:(len(match.group(1))-1)]`_{`!p snip.rv = (match.group(2))[:(len(match.group(2))-1)]`}
+endsnippet
+
+snippet sr "^2" i
+^2
+endsnippet
+
+snippet cb "^3" i
+^3
+endsnippet
+
+snippet compl "complement" i
+^{c}
+endsnippet
+
+snippet tp "superscript" i
+^{$1}$0
+endsnippet
+
+snippet cc "Color" 
+\textcolor{$1}{$2}$0
+endsnippet
+
+snippet sd "Setup document"
+\documentclass[a4paper]{article}
+\date{`date +%F`}
+\author{Louis Hassett}
+\usepackage{xcolor}
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{pmboxdraw}
+\usepackage{float}
+\usepackage{tcolorbox}
+\usepackage{fancyhdr}
+\newcommand{\incfig}[2][1]{%
+	\def\svgwidth{#1\columnwidth}
+	\import{./figures/}{#2.pdf_tex}
+}
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{`date +%F` - LJ Hassett}
+\lhead{$2}
+\begin{document}
+$0
+\end{document}
+endsnippet
+
+snippet hl "Horizontal line"
+\noindent\rule{\textwidth}{0.8pt}
+$0
+endsnippet
+
+snippet s "\section{}"
+\section{$1}
+$0
+endsnippet
+
+snippet ss "\subsection{}"
+\subsection{$1}
+$0
+endsnippet
+
+snippet sss "\subsubsection{}"
+\subsubsection{$1}
+$0
+endsnippet
+
+snippet np "\newpage" 
+\newpage
+$0
+endsnippet
+
+snippet sp "Setup packages"
+\usepackage{xcolor}
+endsnippet
+
+snippet box "Box"
+\begin{tcolorbox}
+$0
+\end{tcolorbox}
+endsnippet
+
+snippet ol "List"
+\begin{enumerate}
+$0
+\end{enumerate}
+endsnippet
+
+snippet ul "List"
+\begin{itemize}
+$0
+\end{itemize}
+endsnippet
+
+snippet p "Point"
+\item $0
+endsnippet
+
+snippet bt "Bold text"
+\textbf{$1}$0
+endsnippet
+
+snippet ut "Underline text"
+\underline{$1}$0
+endsnippet

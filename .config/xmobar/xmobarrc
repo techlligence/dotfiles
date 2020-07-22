@@ -17,7 +17,7 @@ Config { font = "xft:Hack-Regular Font:pixelsize=16:antialias=true:hinting=true"
        , overrideRedirect = True
        , commands = [
                       Run UnsafeStdinReader
-                    , Run Date "%a%_d %b %Y %H:%M" "date" 10
+                    , Run Date "%a %_d %b %Y %H:%M" "date" 10
                     , Run Alsa "default" "Master" [] 
                     , Run Cpu ["-t", "<total>%","-H","50","--high","red"] 20
                     , Run Memory ["-t", "<usedratio>%"] 20
@@ -26,5 +26,5 @@ Config { font = "xft:Hack-Regular Font:pixelsize=16:antialias=true:hinting=true"
        , sepChar = "%"
        , alignSep = "}{"
        , template = "%UnsafeStdinReader%}\
-                    \{ <fc=#a9c2f5>cpu: %cpu%</fc> | <fc=#b9cc76>mem: %memory%</fc> | <fc=#d89ae6>disk: %disku%</fc> | <fc=#e67777>%alsa:default:Master%</fc>| <fc=#f5ba67>%date%</fc> "
+                    \{ <fc=#a9c2f5>cpu: %cpu%</fc> | <fc=#b9cc76>mem: %memory%</fc> | <fc=#d89ae6>disk: %disku%</fc> | <fc=#f5ba67>%date%</fc> "
        }

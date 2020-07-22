@@ -1,0 +1,21 @@
+
+xmonad.hs:92:1: warning: [-Wtabs]
+    Tab character found here, and in two further locations.
+    Please use spaces instead.
+   |
+92 |         -- launch dmenu
+   | ^^^^^^^^
+
+xmonad.hs:306:11: warning: [-Wdeprecations]
+    In the use of `defaultPP' (imported from XMonad.Hooks.DynamicLog):
+    Deprecated: "Use def (from Data.Default, and re-exported by XMonad.Hooks.DynamicLog) instead."
+    |
+306 | myLogPP = DynamicLog.defaultPP
+    |           ^^^^^^^^^^^^^^^^^^^^
+
+xmonad.hs:318:17: warning: [-Wdeprecations]
+    In the use of `defaultPP' (imported from XMonad.Hooks.DynamicLog):
+    Deprecated: "Use def (from Data.Default, and re-exported by XMonad.Hooks.DynamicLog) instead."
+    |
+318 | myLogPPActive = DynamicLog.defaultPP
+    |                 ^^^^^^^^^^^^^^^^^^^^

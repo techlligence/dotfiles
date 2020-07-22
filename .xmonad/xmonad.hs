@@ -89,6 +89,12 @@ myKeys = \c -> mkKeymap c $
         -- launch dmenu
         , ("M-p", spawn "dmenu_run")
 
+	-- launch dmenu
+        , ("M-f", spawn "alacritty -e lf")
+
+	-- launch flameshot
+	, ("M-s", spawn "flameshot gui")
+
         -- close focused window
         , ("M-S-c", kill)
 
@@ -246,10 +252,12 @@ myManageHook = composeAll
 myStartupHook = do
   spawnOnce "$HOME/.xmonad/scripts/lefthand.sh &"
   spawnOnce "nitrogen --restore &"
+  spawnOnce "flameshot &"
   spawnOnce "picom -CGb &"
   spawnOnce "sudo ntpdate 129.6.15.28; killall xmobar; xmonad --restart &"
   setWMName "LG3D &"
   spawnOnce "xsetroot -cursor_name left_ptr &"
+  spawnOnce "inkscape-figures watch &"
   DynamicBars.dynStatusBarStartup barCreator barDestroyer
 
 
@@ -272,8 +280,8 @@ main = do
         borderWidth        = 2,
         modMask            = mod1Mask,
         workspaces         = ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
-        normalBorderColor  = "#000000",
-        focusedBorderColor = "#ff7700",
+        normalBorderColor  = "#12253D",
+        focusedBorderColor = "#ff3300",
 
       -- key bindings
         keys               = myKeys,

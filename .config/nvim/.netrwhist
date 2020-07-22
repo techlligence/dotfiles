@@ -1,0 +1,12 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhistcnt =2
+let g:netrw_dirhist_2='/home/louis/.config/nvim/mysnippets'
+let g:netrw_dirhist_1='/home/louis/Documents/test'
+let g:netrw_dirhist_0='/home/louis/Documents'
+let g:netrw_dirhist_9='/home/louis/Documents/test'
+let g:netrw_dirhist_8='/home/louis/Documents'
+let g:netrw_dirhist_7='/home/louis/Documents/test'
+let g:netrw_dirhist_6='/home/louis/Documents'
+let g:netrw_dirhist_5='/home/louis/Documents/test'
+let g:netrw_dirhist_4='/home/louis/Documents'
+let g:netrw_dirhist_3='/home/louis/Documents/test'
