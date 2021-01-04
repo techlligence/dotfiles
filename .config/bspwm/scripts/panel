@@ -1,0 +1,63 @@
+#! /bin/sh
+
+# Received script variables
+MONITOR_INDEX=$1
+MONITOR_NAME=$2
+
+# Monitor setup
+MONITOR_RESOLUTION=$(xrandr | grep '*' | awk '{ print$1 }' | cut -dx -f1)
+MONITOR_Y_RESOLUTION=$(echo $MONITOR_RESOLUTION | awk "{ print$"$MONITOR_INDEX" }")
+OFFSETS=$(xrandr | grep " connected " | cut -d "+" -f2)
+OFFSET=$(echo $OFFSETS | awk "{ print$"$MONITOR_INDEX" }")
+
+PANEL_DIMENSIONS=""$MONITOR_Y_RESOLUTION"x32+"$OFFSET"+0"
+
+
+# This section checks if the panel is already running
+if xdo id -a "$PANEL_WM_NAME" > /dev/null ; then
+	printf "%s\n" "The panel is already running." >&2
+	exit 1
+fi
+
+
+# Unknown
+trap 'trap - TERM; kill 0' INT TERM QUIT EXIT
+
+
+# Create a fifo file
+PANEL_FIFO="/tmp/panel_fifo"$MONITOR_INDEX""
+[ -e "$PANEL_FIFO" ] && rm "$PANEL_FIFO"
+mkfifo "$PANEL_FIFO"
+
+
+# Items wanting to be read
+xtitle -sf 'title%s\n' -t 50 > "$PANEL_FIFO" &
+# clock -sf 'S%a %H:%M' > "$PANEL_FIFO" &
+
+while true; do
+	echo "width"$(xprop -name panel | grep 'program specified minimum size' | cut -d ' ' -f 5)""
+	sleep 1
+done > "$PANEL_FIFO" &
+# Clock
+while true; do	
+	echo -e "clock$(date +"%H:%M %d/%m/%Y")"
+	sleep 60
+done > "$PANEL_FIFO" &
+
+bspc subscribe report > "$PANEL_FIFO" &
+
+
+# Source the color panel file
+. panel_colors
+
+
+# Launch lemonbar
+panel_bar "$MONITOR_NAME" < "$PANEL_FIFO" | lemonbar -a 32 -u 2 -n "$PANEL_WM_NAME" -g "$PANEL_DIMENSIONS" -f "Hack-Regular" -F "$COLOR_DEFAULT_FG" -B "$COLOR_DEFAULT_BG" | sh &
+
+
+# Unknown
+#wid=$(xdo id -m -a "$PANEL_WM_NAME")
+#xdo above -t "$(xdo id -N Bspwm -n root | sort | head -n 1)" "$wid"
+xdo above -t $(xdo id -n root) $(xdo id -n lemonbar)
+
+wait

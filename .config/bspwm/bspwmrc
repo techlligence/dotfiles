@@ -1,33 +1,61 @@
 #! /bin/sh
 
-~/myscripts/.lefthandmouse
-~/.config/polybar/launch.sh
+#----------------------------------------------------
+# 			BSPWM autostart
+#----------------------------------------------------
+pgrep -x sxhkd > /dev/null || sxhkd &
+screen_layout.sh &
+lefthand.sh &
+start_panel.sh &
+flameshot &
+picom -CGb &
+xsetroot -cursor_name left_ptr &
+feh $HOME/.config/bspwm/wallpaper/bear.jpg --bg-center &
+inkscape-figures watch &
+dunst &
+killall lemonbar &
 
-sxhkd &
+#----------------------------------------------------
+# 			BSPWM monitor setup
+#----------------------------------------------------
+tags=(1 2 3 4 5 6 7 8 9)
 
-bspc monitor DVI-D-0 -d 1 2 3 4 5
-bspc monitor DP-3 -d 1 2 3 4 5
+index=0
+monitors=$(xrandr | grep " connected " | awk '{ print$1 }')
+monitor_count=$(xrandr | grep " connected " | awk '{ print$1 }' | wc -l)
+for monitor in $monitors
+do
+	if [ $((monitor_count-1)) -eq $index ]
+	then
+		bspc monitor $monitor -d ${tags[@]:$index}
+	else
+		bspc monitor $monitor -d $((index+1))
+	fi
 
-#BSPWM configuration
-bspc config border_radius       0
+	index=$((index+1))
+done
+
+#----------------------------------------------------
+# 			BSPWM config settings
+#----------------------------------------------------
 bspc config border_width         2
-bspc config window_gap           5
-bspc config top_padding          5
-bspc config bottom_padding       5
-bspc config left_padding         5
-bspc config right_padding        5
-bspc config single_monocle       false
-#bspc config click_to_focus       true
-bspc config split_ratio          0.50
+bspc config window_gap          12
+bspc config split_ratio          0.52
 bspc config borderless_monocle   true
 bspc config gapless_monocle      true
-#bspc config focus_by_diRstance    true
 bspc config focus_follows_pointer true
-#bspc config history_aware_focus  true
-bspc config pointer_modifier mod4
-bspc config pointer_action1 move
-bspc config pointer_action2 resize_side
-bspc config pointer_action3 resize_corner
-bspc config remove_disabled_monitors true
-bspc config merge_overlapping_monitors true
+bspc config pointer_follows_monitor true
+bspc config normal_border_color '#545454'
+bspc config focused_border_color '#ff7b00'
+bspc config border_width 1
+
+
+#----------------------------------------------------
+# 			BSPWM rule settings
+#----------------------------------------------------
+bspc rule -a Gimp desktop='^8' state=floating follow=on
+bspc rule -a Chromium desktop='^2'
+bspc rule -a mplayer2 state=floating
+bspc rule -a Kupfer.py focus=on
+bspc rule -a Screenkey manage=off
 

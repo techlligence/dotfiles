@@ -1,272 +1,142 @@
-#################################################################
-# LOUIS
-# Bindings
-#################################################################
+#
+#
+# wm independent hotkeys
+#
 
-#################################################################
-# SUPER + FUNCTION KEYS
-#################################################################
+alt + period
+	$HOME/.config/bspwm/scripts/cycle.sh forward
 
-# Chromium
-super + F1
-	chromium
+alt + comma
+	$HOME/.config/bspwm/scripts/cycle.sh backward
 
-# Rider
-super + F2
-	rider
+alt + {Tab,backslash}
+	$HOME/.config/bspwm/scripts/swap.sh {prev,next}
 
-#################################################################
-# SUPER + ... KEYS
-#################################################################
+alt + {i,o}
+	bspc monitor --focus {prev,next}
 
-#Alacritty
-super + Return
-    alacritty
+# terminal emulator
+alt + shift + Return
+	alacritty
 
-#Xkill
-super + Escape
-    xkill
+# program launcher
+alt + p
+	dmenu_run
 
-#################################################################
-# SUPER + SHIFT KEYS
-#################################################################
-
-# LF
-super + shift + Return
-	alacritty -e lf
-
-#dmenu
-super + space
-	dmenu_run -i -nb '#191919' -nf '#fea63c' -sb '#fea63c' -sf '#191919' -fn 'NotoMonoRegular:bold:pixelsize=14'
-
-#reload sxhkd:
-super + shift + s
+# make sxhkd reload its configuration files:
+alt + Escape
 	pkill -USR1 -x sxhkd
 
-#################################################################
-#     MULTIMEDIA KEYS
-#################################################################
+# Kill program
+alt + shift + c
+	bspc node -c
 
-#Raises volume
-XF86AudioRaiseVolume
-    amixer set Master 5%+
+#
+# bspwm hotkeys
+#
 
-#Lowers volume
-XF86AudioLowerVolume
-    amixer set Master 5%-
+# quit/restart bspwm
+super + alt + {q,r}
+	bspc {quit,wm -r}
 
-#Mute
-XF86AudioMute
-    amixer -D pulse set Master 1+ toggle
+# DONE close and kill
+super + {_,shift + }w
+	bspc node -{c,k}
 
-#Playerctl works for Pragha, Spotify and others
-#Delete the line for playerctl if you want to use mpc
-#and replace it with the corresponding code
-#mpc works for e.g.ncmpcpp
-#mpc toggle
-#mpc next
-#mpc prev
-#mpc stop
+# alternate between the tiled and monocle layout
+super + m
+	bspc desktop -l next
 
-#PLAY
-XF86AudioPlay
-    playerctl play-pause
+# send the newest marked node to the newest preselected node
+super + y
+	bspc node newest.marked.local -n newest.!automatic.local
 
-#Next
-XF86AudioNext
-    playerctl next
+# swap the current node and the biggest window
+super + g
+	bspc node -s biggest.window
 
-#previous
-XF86AudioPrev
-    playerctl previous
+#
+# state/flags
+#
 
-#Stop
-XF86AudioStop
-    playerctl stop
+# set the window state
+super + {t,shift + t,s,f}
+	bspc node -t {tiled,pseudo_tiled,floating,fullscreen}
 
-#Brightness up
-XF86MonBrightnessUp
-    xbacklight -inc 10
+# set the node flags
+super + ctrl + {m,x,y,z}
+	bspc node -g {marked,locked,sticky,private}
 
-#Brightness down
-XF86MonBrightnessDown
-    xbacklight -dec 10
+#
+# focus/swap
+#
 
-#################################################################
-#################################################################
-##################   DESKTOP SPECIFIC    ########################
-#################################################################
-#################################################################
+# focus the node in the given direction
+alt + {_,shift + }{h,j,k,l}
+	bspc node -{f,s} {west,south,north,east}
 
-#################################################################
-# SUPER + KEYS
-#################################################################
+# focus the node for the given path jump
+super + {p,b,comma,period}
+	bspc node -f @{parent,brother,first,second}
 
-# focus or send to the given desktop
-super + {_,shift + }{1-9,0}
-	bspc {desktop -f,node -d} focused:'^{1-9,10}'
+# focus the next/previous window in the current desktop
+super + {_,shift + }c
+	bspc node -f {next,prev}.local.!hidden.window
 
 # focus the next/previous desktop in the current monitor
 super + bracket{left,right}
 	bspc desktop -f {prev,next}.local
 
-# focus on the next/previous monitor
-super + {comma,period} 
-	bspc monitor -f {prev,next}
+# focus the last node/desktop
+super + {grave,Tab}
+	bspc {node,desktop} -f last
 
-#Toggle fullscreen of window
-super + f
-	bspc node --state \~fullscreen
+# focus the older or newer node in the focus history
+super + {o,i}
+	bspc wm -h off; \
+	bspc node {older,newer} -f; \
+	bspc wm -h on
 
-# Toggle pseudo tiling of window
-super + p
-	bspc node --state \~pseudo_tiled
+# focus or send to the given desktop
+#super + {_,shift + }{1-9,0}
+#	bspc {desktop -f,node -d} '^{1-9,10}'
 
-# Quit
-super + q
-	bspc node -c
+#
+# preselect
+#
 
-#Focus selected desktop
-super + Tab
-	bspc desktop -f '^{1-9,10}'
-
-# Increase/decrease window gap on focused desktop
-super + bracket{left,right}
-	bspc config -d focused window_gap $((`bspc config -d focused window_gap` {-,+} 5 ))
-
-# set the window state
-super + shift + space
-	bspc node -t {tiled,pseudo_tiled,floating,fullscreen}
-
-# Move focus to other monitor
-super + BackSpace
-		bspc monitor -f next
-
-# Move node to monitor and focus
-super + shift + {comma, period}
-	bspc node -m {prev, next} --follow
-
-# Move node in given direction and focus
-
-	
-#################################################################
-# SUPER + ALT KEYS
-#################################################################
-
-# Move floating window
-super + alt + {_,shift + }{Left,Down,Up,Right}
-	~/.config/bspwm/scripts/move-window {_,edge-}{west,south,north,east}
-
-#################################################################
-# SUPER + CONTROL KEYS
-#################################################################
-
-# Cancel preselection
-super + ctrl + space
-	bspc node --presel-dir cancel
-
-#################################################################
-# SUPER + SHIFT KEYS
-#################################################################
-
-
-#Reload bspwm
-super + shift + r
-	~/.config/bspwm/bspwmrc
-
-#kill
-super + shift + q
-	bspc node -c
-
-# Focus/swap windows by direction
-super + {_,shift + }{h,j,k,l}
-	bspc node --{focus,swap} {west,south,north,east}
-
-# Flip layout vertically/horizontally
-super + {_,shift + }a
-	bspc node @/ --flip {vertical,horizontal}
-
-# Move focused window to other monitor
-super + shift + Left
-	bspc node -m next --follow
-
-# Move focused window to other monitor
-super + shift + Right
-		bspc node -m next --follow
-
-# Move focused window to other monitor
-super + shift + Up
-	bspc node -m next --follow
-
-# Move focused window to other monitor
-super + shift + Down
-		bspc node -m next --follow
-
-#################################################################
-# SUPER + CONTROL KEYS
-#################################################################
-
-# Focus/swap windows by direction
-super + ctrl + {Left,Down,Up,Right}
-	bspc node --{focus} {west,south,north,east}
-
-# Contract tiled space
+# preselect the direction
 super + ctrl + {h,j,k,l}
-	bspc node {@east -r -10,@north -r +10,@south -r -10,@west -r +10}
+	bspc node -p {west,south,north,east}
 
-# Focus parent/brother/first/second for preselection
-super + ctrl + {e,r,t,y}
-	bspc node --focus @{parent,brother,first,second}
+# preselect the ratio
+super + ctrl + {1-9}
+	bspc node -o 0.{1-9}
 
-# Preselect the splitting area for next window on leaf/parent
-super + ctrl + {u,i,o,p}
-	bspc node --presel-dir \~{west,south,north,east}
+# cancel the preselection for the focused node
+super + ctrl + space
+	bspc node -p cancel
 
-# Define splitting ratio for next window on leaf/parent
-super + ctrl + {_,shift +}{1-9}
-	bspc node {_,@/} --presel-ratio 0.{1-9}
+# cancel the preselection for the focused desktop
+super + ctrl + shift + space
+	bspc query -N -d | xargs -I id -n 1 bspc node id -p cancel
 
+#
+# move/resize
+#
 
-#################################################################
-# ALT KEYS
-#################################################################
+# expand a window by moving one of its side outward
+super + alt + {h,j,k,l}
+	bspc node -z {left -20 0,bottom 0 20,top 0 -20,right 20 0}
 
-#Focus selected desktop
-alt + Tab
-	bspc desktop -f '^{1-9,10}'
+# contract a window by moving one of its side inward
+super + alt + shift + {h,j,k,l}
+	bspc node -z {right -20 0,top 0 20,bottom 0 -20,left 20 0}
 
-	#Focus selected desktop
-alt + shift + Tab
-	bspc desktop -f '^{1-9,10}'
+# move a floating window
+super + {Left,Down,Up,Right}
+	bspc node -v {-20 0,0 20,0 -20,20 0}
 
-#Rotate desktop
-alt + space
-	bspc node @/ --rotate {90,-90}
-
-#################################################################
-# ALT + SHIFT KEYS
-#################################################################
-
-# Expand tiled space
-alt + shift + {h,j,k,l}
-	bspc node {@west -r -10,@south -r +10,@north -r -10,@east -r +10}
-
-#################################################################
-# CTRL + ALT KEYS
-#################################################################
-
-# Focus next/previous window
-ctrl + alt + Left
-	bspc node --focus west
-
-# Focus next/previous window
-ctrl + alt + Right
-	bspc node --focus east
-
-# Focus Up window
-ctrl +alt + Up
-	bspc node --focus north
-
-# Focus Down window
-ctrl + alt + Down
-	bspc node --focus south
+alt + {1-9}
+	d='{1-9}'; \
+	bspc desktop -f "$d.local" || bspc desktop -s "$d"
