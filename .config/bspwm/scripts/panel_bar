@@ -24,8 +24,14 @@ while read -r line ; do
 
 			clock="%{F#ffbe57}%{B$COLOR_DEFAULT_BG} ${line:5} %{B-}%{F-}"
 			;;
-		width*)
-			testing=$length
+		disk*)
+			disk="%{F#6bbf9f}%{B$COLOR_DEFAULT_BG} disk:${line:4} %{B-}%{F-}"
+			;;
+		memory*)
+			memory="%{F#ff8c8c}%{B$COLOR_DEFAULT_BG} mem:${line:6} %{B-}%{F-}"
+			;;
+		cpu*)
+			cpu="%{F#88c8f2}%{B$COLOR_DEFAULT_BG} cpu:${line:3} %{B-}%{F-}"
 			;;
 		title*)
 			# Check if the there is a node on the window
@@ -98,5 +104,5 @@ while read -r line ; do
 			wm=" ${desktops[@]}"
 			;;
 	esac
-	printf "%s\n" "%{l}${wm} ${title}%{r}${testing}${clock}"
+	printf "%s\n" "%{l}${wm} ${title}%{r}${cpu}${memory}${disk}${clock}%{O5}%{O-}"
 done

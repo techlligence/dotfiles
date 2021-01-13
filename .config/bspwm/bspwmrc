@@ -3,17 +3,18 @@
 #----------------------------------------------------
 # 			BSPWM autostart
 #----------------------------------------------------
+killall lemonbar &
 pgrep -x sxhkd > /dev/null || sxhkd &
 screen_layout.sh &
 lefthand.sh &
 start_panel.sh &
 flameshot &
 picom -CGb &
+#wmname compiz &
 xsetroot -cursor_name left_ptr &
 feh $HOME/.config/bspwm/wallpaper/bear.jpg --bg-center &
 inkscape-figures watch &
 dunst &
-killall lemonbar &
 
 #----------------------------------------------------
 # 			BSPWM monitor setup

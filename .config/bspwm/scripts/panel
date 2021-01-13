@@ -14,10 +14,10 @@ PANEL_DIMENSIONS=""$MONITOR_Y_RESOLUTION"x32+"$OFFSET"+0"
 
 
 # This section checks if the panel is already running
-if xdo id -a "$PANEL_WM_NAME" > /dev/null ; then
-	printf "%s\n" "The panel is already running." >&2
-	exit 1
-fi
+#if xdo id -a "$PANEL_WM_NAME" > /dev/null ; then
+#	printf "%s\n" "The panel is already running." >&2
+#	exit 1
+#fi
 
 
 # Unknown
@@ -34,15 +34,39 @@ mkfifo "$PANEL_FIFO"
 xtitle -sf 'title%s\n' -t 50 > "$PANEL_FIFO" &
 # clock -sf 'S%a %H:%M' > "$PANEL_FIFO" &
 
-while true; do
-	echo "width"$(xprop -name panel | grep 'program specified minimum size' | cut -d ' ' -f 5)""
-	sleep 1
-done > "$PANEL_FIFO" &
 # Clock
 while true; do	
 	echo -e "clock$(date +"%H:%M %d/%m/%Y")"
-	sleep 60
+	sleep 1
 done > "$PANEL_FIFO" &
+
+# Disk usage
+while true; do
+	echo -e "disk$(df /dev/sdb2 | grep 2 | awk '{print $5}')"
+	sleep 10
+done > "$PANEL_FIFO" &
+
+# Memory usage
+while true; do
+     mem=$(free | grep Mem | awk '{print $3/$2 * 100.0}')
+     mem_round=$(printf "%.1f\n" $mem)
+     echo "memory$mem_round%"
+     sleep 5
+done > "$PANEL_FIFO" &
+
+# CPU Usage
+while true; do
+     c=$(top -bn1 | grep "Cpu(s)" | \
+     sed "s/.*, *\([0-9.]*\)%* id.*/\1/" | \
+     awk '{print 100 - $1}')
+     echo "cpu$c%"
+     sleep 5
+done > "$PANEL_FIFO" &
+
+#while true; do
+#	echo "width$(xprop -name panel | grep 'program specified minimum size' | cut -d ' ' -f 5)"
+#	sleep 1
+#done > "$PANEL_FIFO" &
 
 bspc subscribe report > "$PANEL_FIFO" &
 
@@ -56,7 +80,7 @@ panel_bar "$MONITOR_NAME" < "$PANEL_FIFO" | lemonbar -a 32 -u 2 -n "$PANEL_WM_NA
 
 
 # Unknown
-#wid=$(xdo id -m -a "$PANEL_WM_NAME")
+#ddwid=$(xdo id -m -a "$PANEL_WM_NAME")
 #xdo above -t "$(xdo id -N Bspwm -n root | sort | head -n 1)" "$wid"
 xdo above -t $(xdo id -n root) $(xdo id -n lemonbar)
 
