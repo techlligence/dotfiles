@@ -3,6 +3,22 @@
 # wm independent hotkeys
 #
 
+alt + f
+	alacritty -e lf
+
+XF86Audio{Raise,Lower}Volume
+    amixer -D pulse sset Master 5%{+,-}
+
+alt + shift + {1-9}
+	bspc node -d {1-9}
+
+alt + space
+	bspc desktop -l next
+
+alt + shift + {i,o}
+	bspc node focused -m {prev,next}
+	
+
 alt + period
 	$HOME/.config/bspwm/scripts/cycle.sh forward
 
@@ -36,15 +52,18 @@ alt + shift + c
 #
 
 # quit/restart bspwm
-super + alt + {q,r}
-	bspc {quit,wm -r}
+alt + q
+	bspc wm -r
+
+alt + shift + q
+	bspc quit
 
 # DONE close and kill
 super + {_,shift + }w
 	bspc node -{c,k}
 
 # alternate between the tiled and monocle layout
-super + m
+mod4 + m
 	bspc desktop -l next
 
 # send the newest marked node to the newest preselected node
@@ -60,7 +79,7 @@ super + g
 #
 
 # set the window state
-super + {t,shift + t,s,f}
+mod4 + {t,shift + t,s,f}
 	bspc node -t {tiled,pseudo_tiled,floating,fullscreen}
 
 # set the node flags
@@ -71,9 +90,22 @@ super + ctrl + {m,x,y,z}
 # focus/swap
 #
 
-# focus the node in the given direction
-alt + {_,shift + }{h,j,k,l}
-	bspc node -{f,s} {west,south,north,east}
+# Swap the nodes  ONLY on the focused desktop
+alt + shift {h,j,k,l}
+	bspc node -s {west,south,north,east}.local
+
+# focus the node in the given direction ONLY on the focused desktop
+alt + {h,j,k,l}
+	LAYOUT=$(bspc query -T -d | jq -r .layout); \
+	[[ "$LAYOUT" == "tiled" ]] && bspc node -f {west,south,north,east}.local; \
+	[[ "$LAYOUT" == "monocle" ]] && bspc node -f {prev,next,prev,next}.local.window
+	bspc node -f {west,south,north,east}.local
+
+mod4 + {h,j,k,l}
+	bspc node -p {west, south, north, east} && dmenu_run
+
+#alt + {u,p}
+#	bspc node -f {prev,next}.local.window
 
 # focus the node for the given path jump
 super + {p,b,comma,period}

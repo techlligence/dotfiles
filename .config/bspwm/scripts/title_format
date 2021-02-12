@@ -1,0 +1,33 @@
+#!/bin/bash
+
+. $HOME/.config/bspwm/scripts/panel_colors
+
+MONITOR_NAME_BAR=$1
+
+while read -r line ; do
+
+	case $line in
+		title*)
+			# Check if the there is a node on the window
+		#	title_name=
+			if [ -z ${line:5} ]
+			then
+				title_name="empty"
+			else
+				title_name=${line:5}
+			fi
+
+			# xtitle output
+			if [ $focused_monitor = $MONITOR_NAME_BAR ]
+			then
+				title="%{F$COLOR_TITLE_FG_FOCUSED}%{B$COLOR_TITLE_BG_FOCUSED} $title_name %{B-}%{F-}"
+			else
+				title="%{F$COLOR_TITLE_FG_UNFOCUSED}%{B$COLOR_TITLE_BG_UNFOCUSED} $title_name %{B-}%{F-}"
+
+			fi
+
+			;;
+
+	esac
+	printf "%s\n" "${title}"
+done

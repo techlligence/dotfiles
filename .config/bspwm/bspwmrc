@@ -3,18 +3,21 @@
 #----------------------------------------------------
 # 			BSPWM autostart
 #----------------------------------------------------
-killall lemonbar &
-pgrep -x sxhkd > /dev/null || sxhkd &
-screen_layout.sh &
-lefthand.sh &
-start_panel.sh &
+killall polybar &
+pgrep -x sxhkd > /dev/null || sxhkd & $HOME/.config/bspwm/scripts/screen_layout.sh &
+$HOME/.config/bspwm/scripts/lefthand.sh &
+$HOME/.config/bspwm/scripts/polybar_start.sh &
 flameshot &
 picom -CGb &
-#wmname compiz &
+nm-applet &
+wmname compiz & 
 xsetroot -cursor_name left_ptr &
 feh $HOME/.config/bspwm/wallpaper/bear.jpg --bg-center &
 inkscape-figures watch &
 dunst &
+
+xmodmap -e "add mod4 = ISO_Left_Tab" &
+xmodmap -e "add mod4 = backslash" &
 
 #----------------------------------------------------
 # 			BSPWM monitor setup
