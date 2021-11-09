@@ -62,6 +62,13 @@ import XMonad.Hooks.ManageHelpers
   -- DWM style master/slave swapping
 import XMonad.Actions.DwmPromote
 
+  -- Make sure the cursor follows the screen
+import XMonad.Actions.Warp
+
+import XMonad.Layout.IndependentScreens
+
+import XMonad.Config.Desktop
+
 import qualified XMonad.Hooks.DynamicBars as DynamicBars
 import qualified XMonad.Hooks.DynamicLog as DynamicLog
 
@@ -138,8 +145,8 @@ myKeys = \c -> mkKeymap c $
         , ("M-S-,", shiftPrevScreen)
 
         -- Move focuse to next/prev monitor
-        , ("M-o", nextScreen)
-        , ("M-i", prevScreen)
+        , ("M-o", nextScreen <+> banishScreen LowerLeft)
+        , ("M-i", prevScreen <+> banishScreen LowerLeft)
 
         , ("M-<Tab>", swapNextScreen)
 
@@ -150,8 +157,8 @@ myKeys = \c -> mkKeymap c $
         -- Set window and screen spacing back to default
         , ("M-=", setScreenWindowSpacing 10)
 
-        , ("<XF86AudioLowerVolume>", spawn $ "amixer -q set Master 5%-")
-        , ("<XF86AudioRaiseVolume>", spawn $ "amixer -q set Master 5%+")
+        , ("<XF86AudioLowerVolume>", spawn $ "amixer -D pulse sset Master 5%-")
+        , ("<XF86AudioRaiseVolume>", spawn $ "amixer -D pulse sset Master 5%+")
 
         , ("M-b", sendMessage ToggleStruts)
         
@@ -213,9 +220,10 @@ magnify  = renamed [Replace "magnify"]
            $ ResizableTall 1 (3/100) (1/2) []
 
 monocle  = renamed [Replace "monocle"]
+           $ mySpacing 10
            $ limitWindows 20 Full 
 
-myLayout = avoidStruts (tall ||| magnify ||| noBorders monocle) ||| noBorders Full
+myLayout = avoidStruts (tall ||| monocle) ||| noBorders Full
 
 ------------------------------------------------------------------------
 -- Manage Hook:
@@ -223,7 +231,8 @@ myLayout = avoidStruts (tall ||| magnify ||| noBorders monocle) ||| noBorders Fu
 myManageHook = composeAll
    [  className =? "MPlayer"        --> doFloat
     , className =? "Gimp"           --> doFloat
-    , resource  =? "desktop_window" --> doIgnore
+    , className =? "pwrworld.exe"   --> doFloat
+    , resource  =? "desktop_window" --> doFloat
     , resource  =? "kdesktop"       --> doIgnore ]
 
 ------------------------------------------------------------------------
@@ -250,17 +259,22 @@ myManageHook = composeAll
 ------------------------------------------------------------------------
 myStartupHook = do
   spawnOnce "$HOME/.xmonad/scripts/lefthand.sh &"
+--  spawnOnce "$HOME/.xmonad/scripts/polybar/polybar_start.sh &"
   spawnOnce "feh ~/.xmonad/wallpaper/hawk.jpg feh --bg-center ~/.xmonad/wallpaper/bear.jpg &"
   spawnOnce "$HOME/.xmonad/scripts/screen_layout.sh &"
+  spawnOnce "ntpd -qg &"
   spawnOnce "flameshot &"
   spawnOnce "picom -CGb &"
   setWMName "LG3D &"
   spawnOnce "xsetroot -cursor_name left_ptr &"
   spawnOnce "inkscape-figures watch &"
+  spawnOnce "nm-applet &"
   spawnOnce "dunst &"
   spawnOnce "sxhkd &"
-  DynamicBars.dynStatusBarStartup barCreator barDestroyer
+  spawnOnce "wmname compiz &"
+  DynamicBars.dynStatusBarStartup barCreatorPolybar barDestroyer
   ewmhDesktopsStartup 
+  docksStartupHook
 
 ------------------------------------------------------------------------
 -- Main:
@@ -269,8 +283,13 @@ myStartupHook = do
 myTerminal = "alacritty"
 
 main = do
+     --  nScreens <- countScreens
+     --  hs       <- mapM (spawnPipe . dzenStatusBar) [0 .. nScreens-1]
 
-       xmonad $ ewmh def {
+       xmproc <- spawnPipe "$HOME/.xmonad/scripts/polybar/polybar_start.sh"
+
+
+       xmonad $ ewmh $ docks desktopConfig {
       -- simple stuff
         terminal           = myTerminal,
         focusFollowsMouse  = myFocusFollowsMouse,
@@ -278,6 +297,7 @@ main = do
         borderWidth        = 2,
         modMask            = mod1Mask,
         workspaces         = ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
+--["^ca(5, xdotool key alt+comma)^ca(4, xdotool key alt+period)1", "2", "3", "4", "5", "6", "7", "8", "9^ca()^ca()"],
         normalBorderColor  = "#12253D",
         focusedBorderColor = "#ffd36b",
 
@@ -286,12 +306,12 @@ main = do
         mouseBindings      = myMouseBindings,
 
       -- hooks, layouts
-        layoutHook         = myLayout,
+        layoutHook         = lessBorders OnlyScreenFloat $ myLayout,
         startupHook        = myStartupHook,
-        manageHook         = myManageHook <+> manageDocks,
+        manageHook         = myManageHook,
       -- fullscreenhook is used to allow youtube videos to take fullscreen when double clicking
-        handleEventHook    = docksEventHook <+> fullscreenEventHook <+> DynamicBars.dynStatusBarEventHook barCreator barDestroyer,
-        logHook = DynamicBars.multiPP myLogPPActive myLogPP 
+        handleEventHook    = docksEventHook <+> fullscreenEventHook <+> DynamicBars.dynStatusBarEventHook barCreatorPolybar barDestroyer,
+        logHook = DynamicBars.multiPP myLogPPActivePolybar myLogPPPolybar
    
     }
    -- `additionalKeysP` myKeys 
@@ -301,7 +321,7 @@ main = do
 ------------------------------------------------------------------------
 
 myLogPP :: DynamicLog.PP
-myLogPP = DynamicLog.defaultPP
+myLogPP = def
   { DynamicLog.ppCurrent = DynamicLog.xmobarColor "#56bf64" "" . DynamicLog.wrap "<fc=#81d0f7>[</fc>" "<fc=#81d0f7>]</fc>" -- focused monitor and focused workspace
   , DynamicLog.ppVisible = DynamicLog.xmobarColor "#56bf64" "" . DynamicLog.wrap "<fc=#81d0f7>'</fc>" "<fc=#81d0f7>'</fc>" -- shows the workspace the unfocused monitor is displaying on the focused monitor
   , DynamicLog.ppHidden  = DynamicLog.xmobarColor "#56bf64" "" . DynamicLog.wrap " " " " -- hidden workspaces but with windows in it
@@ -313,7 +333,7 @@ myLogPP = DynamicLog.defaultPP
   }
 
 myLogPPActive :: DynamicLog.PP
-myLogPPActive = DynamicLog.defaultPP
+myLogPPActive = def
   { DynamicLog.ppCurrent = DynamicLog.xmobarColor "#56bf64" "" . DynamicLog.wrap "<fc=#81d0f7>[</fc>" "<fc=#81d0f7>]</fc>" -- focused monitor and focused workspace
   , DynamicLog.ppVisible = DynamicLog.xmobarColor "#56bf64" "" . DynamicLog.wrap "<fc=#81d0f7>'</fc>" "<fc=#81d0f7>'</fc>" -- shows the workspace the unfocused monitor is displaying on the focused monitor
   , DynamicLog.ppHidden  = DynamicLog.xmobarColor "#56bf64" "" . DynamicLog.wrap " " " " -- hidden workspaces but with windows in it
@@ -324,9 +344,76 @@ myLogPPActive = DynamicLog.defaultPP
   , DynamicLog.ppSep     = " "
   }
 
+--barCreator :: DynamicBars.DynamicStatusBar
+--barCreator (S sid) = spawnPipe $ "xmobar --screen " ++ show sid ++ " $HOME/.config/xmobar/xmobarrc"
+
 barCreator :: DynamicBars.DynamicStatusBar
 barCreator (S sid) = spawnPipe $ "xmobar --screen " ++ show sid ++ " $HOME/.config/xmobar/xmobarrc"
 
 barDestroyer :: DynamicBars.DynamicStatusBarCleanup
 barDestroyer = return ()
+
+-------------------------------
+-- DZEN testing
+-------------------------------
+myLogPPDzen :: DynamicLog.PP
+myLogPPDzen = def
+  { DynamicLog.ppCurrent = DynamicLog.wrap "^fg(#81d0f7)[^fg(#56bf64)" "^fg(#81d0f7)]^fg(#56bf64)" -- focused monitor and focused workspace
+  , DynamicLog.ppVisible = DynamicLog.wrap "^fg(#81d0f7)'^fg(#56bf64)" "^fg(#81d0f7)'^fg(#56bf64)" -- shows the workspace the unfocused monitor is displaying on the focused monitor
+  , DynamicLog.ppHidden  = DynamicLog.dzenColor "#56bf64" "" . DynamicLog.wrap " " " " -- hidden workspaces but with windows in it
+  , DynamicLog.ppHiddenNoWindows = DynamicLog.dzenColor "#FF0000" "" . DynamicLog.wrap " " " "
+ -- , DynamicLog.ppUrgent  = ""
+  , DynamicLog.ppTitle   = DynamicLog.dzenColor "#9d9fa1" "" . DynamicLog.wrap " " " " . DynamicLog.shorten 45
+  , DynamicLog.ppLayout  = DynamicLog.dzenColor "#d7a3f7" "" . DynamicLog.wrap " " " "
+  , DynamicLog.ppSep     = " "
+  }
+
+myLogPPActiveDzen :: DynamicLog.PP
+myLogPPActiveDzen = def
+  { DynamicLog.ppCurrent = DynamicLog.wrap "^fg(#81d0f7)[^fg(#56bf64)" "^fg(#81d0f7)]^fg(#56bf64)" -- focused monitor and focused workspace
+  , DynamicLog.ppVisible = DynamicLog.wrap "^fg(#81d0f7)'^fg(#56bf64)" "^fg(#81d0f7)'^fg(#56bf64)" -- shows the workspace the unfocused monitor is displaying on the focused monitor
+  , DynamicLog.ppHidden  = DynamicLog.dzenColor "#56bf64" "" . DynamicLog.wrap " " " " -- hidden workspaces but with windows in it
+  , DynamicLog.ppHiddenNoWindows = DynamicLog.dzenColor "#FF0000" "" . DynamicLog.wrap " " " "
+ -- , DynamicLog.ppUrgent  = ""
+  , DynamicLog.ppTitle   = DynamicLog.dzenColor "#c0e66e" "" . DynamicLog.wrap " " " " . DynamicLog.shorten 45
+  , DynamicLog.ppLayout  = DynamicLog.dzenColor "#d7a3f7" "" . DynamicLog.wrap " " " "
+  , DynamicLog.ppSep     = " "
+  }
+
+
+barCreatorDzen :: DynamicBars.DynamicStatusBar
+barCreatorDzen (S sid) = spawnPipe $ "dzen2 -e 'button2=;' -dock -xs " ++ show (sid+1) ++ " -ta l -fn '-*-Hack Nerd Font-*-r-*-*-*-*-*-*-*-*-*-* ' -h 32 -w 960" 
+
+dzenStatusBar (S s) = "conky -c $HOME/.xmonad/scripts/dzen2_status.lua | dzen2 -e 'button2=;' -dock -xs " ++ show (s+1) ++ " -ta r -fn '-*-Hack Nerd Font-*-r-*-*-*-*-*-*-*-*-*-* ' -h 32 -x 960 -w 960 -p"
+
+-------------------------------
+-- Polybar testing
+-------------------------------
+myLogPPPolybar :: DynamicLog.PP
+myLogPPPolybar = def
+  { DynamicLog.ppCurrent = DynamicLog.wrap "%{F#81d0f7}[%{F-}%{F#56bf64}" "%{F-}%{F#81d0f7}]%{F-}" -- focused monitor and focused workspace
+  , DynamicLog.ppVisible = DynamicLog.wrap "%{F#81d0f7}'%{F-}%{F#56bf64}" "%{F-}%{F#81d0f7}'%{F-}" -- shows the workspace the unfocused monitor is displaying on the focused monitor
+  , DynamicLog.ppHidden  = DynamicLog.wrap "%{F#56bf64} " " %{F-}" -- hidden workspaces but with windows in it
+  , DynamicLog.ppHiddenNoWindows = DynamicLog.wrap " %{F#FF0000}" "%{F-} "
+ -- , DynamicLog.ppUrgent  = ""
+  , DynamicLog.ppTitle   = DynamicLog.wrap " %{F#b8b8b8}" "%{F-} " . DynamicLog.shorten 45
+  , DynamicLog.ppLayout  = DynamicLog.wrap " %{F#d7a3f7}" "%{F-} "
+  , DynamicLog.ppSep     = " "
+  }
+
+myLogPPActivePolybar :: DynamicLog.PP
+myLogPPActivePolybar = def
+  { DynamicLog.ppCurrent = DynamicLog.wrap "%{F#81d0f7}[%{F-}%{F#56bf64}" "%{F-}%{F#81d0f7}]%{F-}" -- focused monitor and focused workspace
+  , DynamicLog.ppVisible = DynamicLog.wrap "%{F#81d0f7}'%{F-}%{F#56bf64}" "%{F-}%{F#81d0f7}'%{F-}" -- shows the workspace the unfocused monitor is displaying on the focused monitor
+  , DynamicLog.ppHidden  = DynamicLog.wrap "%{F#56bf64} " " %{F-}" -- hidden workspaces but with windows in it
+  , DynamicLog.ppHiddenNoWindows = DynamicLog.wrap "%{F#FF0000} " " %{F-}"
+ -- , DynamicLog.ppUrgent  = ""
+  , DynamicLog.ppTitle   = DynamicLog.wrap " %{F#c0e66e}" "%{F-}" . DynamicLog.shorten 45
+  , DynamicLog.ppLayout  = DynamicLog.wrap " %{F#d7a3f7}" "%{F-} "
+  , DynamicLog.ppSep     = " "
+  }
+
+
+barCreatorPolybar :: DynamicBars.DynamicStatusBar
+barCreatorPolybar (S sid) = spawnPipe $ "$HOME/.xmonad/scripts/test.sh " ++ show (sid+1) 
 

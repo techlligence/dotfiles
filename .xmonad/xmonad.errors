@@ -1,21 +1,204 @@
 
-xmonad.hs:93:1: warning: [-Wtabs]
-    Tab character found here, and in one further location.
-    Please use spaces instead.
+xmonad.hs:10:1: error:
+    Could not find module `XMonad'
+    Perhaps you meant DsMonad (needs flag -package-key ghc-8.10.7)
+    Use -v (or `:set -v` in ghci) to see a list of the files searched for.
    |
-93 |         -- launch flameshot
-   | ^^^^^^^^
+10 | import XMonad
+   | ^^^^^^^^^^^^^
 
-xmonad.hs:304:11: warning: [-Wdeprecations]
-    In the use of `defaultPP' (imported from XMonad.Hooks.DynamicLog):
-    Deprecated: "Use def (from Data.Default, and re-exported by XMonad.Hooks.DynamicLog) instead."
-    |
-304 | myLogPP = DynamicLog.defaultPP
-    |           ^^^^^^^^^^^^^^^^^^^^
+xmonad.hs:14:1: error:
+    Could not find module `XMonad.StackSet'
+    Use -v (or `:set -v` in ghci) to see a list of the files searched for.
+   |
+14 | import qualified XMonad.StackSet as W
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-xmonad.hs:316:17: warning: [-Wdeprecations]
-    In the use of `defaultPP' (imported from XMonad.Hooks.DynamicLog):
-    Deprecated: "Use def (from Data.Default, and re-exported by XMonad.Hooks.DynamicLog) instead."
-    |
-316 | myLogPPActive = DynamicLog.defaultPP
-    |                 ^^^^^^^^^^^^^^^^^^^^
+xmonad.hs:21:1: error:
+    Could not find module `XMonad.Util.Run'
+    Use -v (or `:set -v` in ghci) to see a list of the files searched for.
+   |
+21 | import XMonad.Util.Run(spawnPipe)
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+xmonad.hs:23:1: error:
+    Could not find module `XMonad.Hooks.ManageDocks'
+    Use -v (or `:set -v` in ghci) to see a list of the files searched for.
+   |
+23 | import XMonad.Hooks.ManageDocks
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+xmonad.hs:25:1: error:
+    Could not find module `XMonad.Hooks.DynamicLog'
+    Use -v (or `:set -v` in ghci) to see a list of the files searched for.
+   |
+25 | import XMonad.Hooks.DynamicLog
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+xmonad.hs:30:1: error:
+    Could not find module `XMonad.Layout.Spacing'
+    Use -v (or `:set -v` in ghci) to see a list of the files searched for.
+   |
+30 | import XMonad.Layout.Spacing
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+xmonad.hs:32:1: error:
+    Could not find module `XMonad.Util.SpawnOnce'
+    Use -v (or `:set -v` in ghci) to see a list of the files searched for.
+   |
+32 | import XMonad.Util.SpawnOnce
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+xmonad.hs:34:1: error:
+    Could not find module `XMonad.Hooks.SetWMName'
+    Use -v (or `:set -v` in ghci) to see a list of the files searched for.
+   |
+34 | import XMonad.Hooks.SetWMName
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+xmonad.hs:36:1: error:
+    Could not find module `XMonad.StackSet'
+    Use -v (or `:set -v` in ghci) to see a list of the files searched for.
+   |
+36 | import qualified XMonad.StackSet as W
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+xmonad.hs:37:1: error:
+    Could not find module `XMonad.Actions.CycleWS'
+    Use -v (or `:set -v` in ghci) to see a list of the files searched for.
+   |
+37 | import XMonad.Actions.CycleWS
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+xmonad.hs:41:1: error:
+    Could not find module `XMonad.Actions.UpdatePointer'
+    Use -v (or `:set -v` in ghci) to see a list of the files searched for.
+   |
+41 | import XMonad.Actions.UpdatePointer
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+xmonad.hs:43:1: error:
+    Could not find module `XMonad.Util.EZConfig'
+    Use -v (or `:set -v` in ghci) to see a list of the files searched for.
+   |
+43 | import XMonad.Util.EZConfig
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+xmonad.hs:45:1: error:
+    Could not find module `XMonad.Hooks.EwmhDesktops'
+    Use -v (or `:set -v` in ghci) to see a list of the files searched for.
+   |
+45 | import XMonad.Hooks.EwmhDesktops
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+xmonad.hs:47:1: error:
+    Could not find module `XMonad.Layout.LayoutModifier'
+    Use -v (or `:set -v` in ghci) to see a list of the files searched for.
+   |
+47 | import XMonad.Layout.LayoutModifier
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+xmonad.hs:49:1: error:
+    Could not find module `XMonad.Layout.ResizableTile'
+    Use -v (or `:set -v` in ghci) to see a list of the files searched for.
+   |
+49 | import XMonad.Layout.ResizableTile
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+xmonad.hs:51:1: error:
+    Could not find module `XMonad.Layout.LimitWindows'
+    Use -v (or `:set -v` in ghci) to see a list of the files searched for.
+   |
+51 | import XMonad.Layout.LimitWindows
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+xmonad.hs:53:1: error:
+    Could not find module `XMonad.Layout.Renamed'
+    Use -v (or `:set -v` in ghci) to see a list of the files searched for.
+   |
+53 | import XMonad.Layout.Renamed
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+xmonad.hs:55:1: error:
+    Could not find module `XMonad.Layout.Magnifier'
+    Use -v (or `:set -v` in ghci) to see a list of the files searched for.
+   |
+55 | import XMonad.Layout.Magnifier
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+xmonad.hs:57:1: error:
+    Could not find module `XMonad.Layout.SimplestFloat'
+    Use -v (or `:set -v` in ghci) to see a list of the files searched for.
+   |
+57 | import XMonad.Layout.SimplestFloat
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+xmonad.hs:59:1: error:
+    Could not find module `XMonad.Layout.NoBorders'
+    Use -v (or `:set -v` in ghci) to see a list of the files searched for.
+   |
+59 | import XMonad.Layout.NoBorders
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+xmonad.hs:61:1: error:
+    Could not find module `XMonad.Hooks.ManageHelpers'
+    Use -v (or `:set -v` in ghci) to see a list of the files searched for.
+   |
+61 | import XMonad.Hooks.ManageHelpers
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+xmonad.hs:63:1: error:
+    Could not find module `XMonad.Actions.DwmPromote'
+    Use -v (or `:set -v` in ghci) to see a list of the files searched for.
+   |
+63 | import XMonad.Actions.DwmPromote
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+xmonad.hs:66:1: error:
+    Could not find module `XMonad.Actions.Warp'
+    Use -v (or `:set -v` in ghci) to see a list of the files searched for.
+   |
+66 | import XMonad.Actions.Warp
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+xmonad.hs:68:1: error:
+    Could not find module `XMonad.Layout.IndependentScreens'
+    Use -v (or `:set -v` in ghci) to see a list of the files searched for.
+   |
+68 | import XMonad.Layout.IndependentScreens
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+xmonad.hs:70:1: error:
+    Could not find module `XMonad.Config.Desktop'
+    Use -v (or `:set -v` in ghci) to see a list of the files searched for.
+   |
+70 | import XMonad.Config.Desktop
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+xmonad.hs:72:1: error:
+    Could not find module `XMonad.Hooks.DynamicBars'
+    Use -v (or `:set -v` in ghci) to see a list of the files searched for.
+   |
+72 | import qualified XMonad.Hooks.DynamicBars as DynamicBars
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+xmonad.hs:73:1: error:
+    Could not find module `XMonad.Hooks.DynamicLog'
+    Use -v (or `:set -v` in ghci) to see a list of the files searched for.
+   |
+73 | import qualified XMonad.Hooks.DynamicLog as DynamicLog
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+xmonad.hs:75:1: error:
+    Could not find module `XMonad.Actions.FlexibleResize'
+    Use -v (or `:set -v` in ghci) to see a list of the files searched for.
+   |
+75 | import qualified XMonad.Actions.FlexibleResize as Flex
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+xmonad.hs:77:1: error:
+    Could not find module `XMonad.Layout.NoFrillsDecoration'
+    Use -v (or `:set -v` in ghci) to see a list of the files searched for.
+   |
+77 | import XMonad.Layout.NoFrillsDecoration
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

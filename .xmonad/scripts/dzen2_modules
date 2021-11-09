@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Create a fifo file
+PANEL_FIFO="/tmp/dzen2_bar"
+[ -e "$PANEL_FIFO" ] && rm "$PANEL_FIFO"
+mkfifo "$PANEL_FIFO"
+
+
+# Clock
+while true; do	
+	echo -e "clock$(date +"%H:%M %d/%m/%Y")"
+	sleep 1
+done > "$PANEL_FIFO" &
+
+# Source the color panel file
+. dzen2_bar
+
+
+# Launch lemonbar
+dzen2_bar < "$PANEL_FIFO" &
+
+wait
